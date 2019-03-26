@@ -34,22 +34,23 @@ import org.matsim.testcases.MatsimTestUtils;
  * @author nagel
  *
  */
-public class HelloWorldTest {
+public class RunMatsim4MunichWEquilTest{
 	
 	@Rule public MatsimTestUtils utils = new MatsimTestUtils() ;
 
 	@Test
 	public final void test() {
 		try {
-			Config config = ConfigUtils.loadConfig( "scenarios/equil/config.xml" ) ;
+			RunMatsim4Munich matsim = new RunMatsim4Munich( new String [] {"scenarios/equil/config.xml"} ) ;
+			Config config = matsim.prepareConfig() ;
 			config.controler().setWriteEventsInterval(1);
 			config.controler().setLastIteration(1);
 			config.controler().setOutputDirectory( utils.getOutputDirectory() );
 			config.controler().setOverwriteFileSetting(OverwriteFileSetting.deleteDirectoryIfExists);
-			RunMatsim.run( config );
+			matsim.run() ;
 		} catch ( Exception ee ) {
 			Logger.getLogger(this.getClass()).fatal("there was an exception: \n" + ee ) ;
-
+			ee.printStackTrace();
 			// if one catches an exception, then one needs to explicitly fail the test:
 			Assert.fail();
 		}
