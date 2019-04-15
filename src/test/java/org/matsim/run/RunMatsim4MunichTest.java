@@ -46,18 +46,6 @@ public class RunMatsim4MunichTest{
 			config.controler().setWriteEventsInterval(1); // so we get an output_events file
 			config.controler().setLastIteration(1);
 			config.controler().setOutputDirectory( utils.getOutputDirectory() );
-			config.controler().setOverwriteFileSetting(OverwriteFileSetting.deleteDirectoryIfExists);
-
-			final List<String> networkModes = Arrays.asList( new String[]{TransportMode.car, TransportMode.bike} );
-
-			config.plansCalcRoute().removeModeRoutingParams( TransportMode.bike );
-
-			config.plansCalcRoute().setNetworkModes( networkModes );
-
-			config.travelTimeCalculator().setSeparateModes( true );
-
-			config.qsim().setMainModes(  networkModes );
-
 			matsim.run() ;
 		} catch ( Exception ee ) {
 			Logger.getLogger(this.getClass()).fatal("there was an exception: \n" + ee ) ;
@@ -66,16 +54,14 @@ public class RunMatsim4MunichTest{
 			Assert.fail();
 		}
 	}
-
 	@Test
 	public final void test2() {
 		try {
-			RunMatsim4Munich matsim = new RunMatsim4Munich( new String [] {"../../shared-svn/projects/matsim-munich/scenarios/v2/config_1pct_v2_reduced.xml"} ) ;
+			RunMatsim4Munich matsim = new RunMatsim4Munich( new String [] {"../../shared-svn/projects/matsim-munich/scenarios/v2/config_1pct_v2_WModeChoice_reduced.xml"} ) ;
 			Config config = matsim.prepareConfig() ;
 			config.controler().setWriteEventsInterval(1); // so we get an output_events file
 			config.controler().setLastIteration(1);
 			config.controler().setOutputDirectory( utils.getOutputDirectory() );
-			config.controler().setOverwriteFileSetting(OverwriteFileSetting.deleteDirectoryIfExists);
 			matsim.run() ;
 		} catch ( Exception ee ) {
 			Logger.getLogger(this.getClass()).fatal("there was an exception: \n" + ee ) ;

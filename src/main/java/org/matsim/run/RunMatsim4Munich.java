@@ -21,10 +21,14 @@ package org.matsim.run;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Link;
+import org.matsim.api.core.v01.population.Leg;
+import org.matsim.api.core.v01.population.Person;
+import org.matsim.api.core.v01.population.Plan;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
-import org.matsim.core.config.groups.PlanCalcScoreConfigGroup;
+import org.matsim.core.config.groups.QSimConfigGroup;
 import org.matsim.core.controler.AbstractModule;
+import org.matsim.core.controler.AllowsConfiguration;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.mobsim.qsim.AbstractQSimModule;
 import org.matsim.core.replanning.PlanStrategy;
@@ -32,19 +36,14 @@ import org.matsim.core.replanning.PlanStrategyImpl;
 import org.matsim.core.replanning.modules.ReRoute;
 import org.matsim.core.replanning.modules.SubtourModeChoice;
 import org.matsim.core.replanning.selectors.RandomPlanSelector;
-import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
-import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule.DefaultStrategy;
 import org.matsim.core.router.TripRouter;
+import org.matsim.core.router.TripStructureUtils;
 import org.matsim.core.scenario.ScenarioUtils;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.matsim.core.config.groups.PlanCalcScoreConfigGroup.*;
+import java.util.*;
 
 /**
  * @author nagel
@@ -72,177 +71,9 @@ public class RunMatsim4Munich{
 		} else{
 			throw new RuntimeException("need to provide path to config file. aborting ...") ;
 		}
+		MunichUtils.createActivityTypes( config );
 
-		// activities (alphabetic).  Presumably revealed activity durations from MidMUC.  This may explain why they extend to different maximum number of hours.  However, a
-		// pickup activity of 22hours does not make sense, so it is not entirely clear.  kai, mar'19
-		// ---
-		{
-			final ActivityParams params = new ActivityParams( "busi0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 13; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "busi" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		{
-			final ActivityParams params = new ActivityParams( "educ0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 23; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "educ" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		// I don't know what the following is.  Maybe "visit friends"?  kai, mar'19
-		{
-			final ActivityParams params = new ActivityParams( "frie0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 4 ; ii <= 4; ii+=1 ) { // not sure why; other values were not in original config file.  kai, mar'19
-			final ActivityParams params = new ActivityParams( "frie" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		{
-			final ActivityParams params = new ActivityParams( "home0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 27; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "home" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		{
-			final ActivityParams params = new ActivityParams( "leis0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 24; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "leis" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		{
-			final ActivityParams params = new ActivityParams( "othe0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 17; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "othe" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		{
-			final ActivityParams params = new ActivityParams( "pick0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 22; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "pick" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		{
-			final ActivityParams params = new ActivityParams( "priv0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 20; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "priv" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		{
-			final ActivityParams params = new ActivityParams( "shop0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 22; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "shop" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-//		{
-//			final ActivityParams params = new ActivityParams( "spor0.5H" );
-//			params.setTypicalDuration( 0.5 * 3600. );
-//			config.planCalcScore().addActivityParams( params );
-//		}
-		for ( long ii = 2 ; ii <= 3; ii+=1 ) {  // only with these two values in original config file.  kai, mar'19
-			final ActivityParams params = new ActivityParams( "spor" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		// Theoretically, "other" (above) means activity types that are known but are aggregated into the new type.  In contrast, "unknown" means that they are not known at
-		// all.  But I don't know if it was designed like that.  kai, mar'19
-		{
-			final ActivityParams params = new ActivityParams( "unkn0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 30; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "unkn" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		{
-			final ActivityParams params = new ActivityParams( "with0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 20; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "with" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		{
-			final ActivityParams params = new ActivityParams( "work0.5H" );
-			params.setTypicalDuration( 0.5 * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		for ( long ii = 1 ; ii <= 23; ii+=1 ) {
-			final ActivityParams params = new ActivityParams( "work" + ii + ".0H" ) ;
-			params.setTypicalDuration( ii * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		// presumably, the following are commuters from outside MUC to inside.  For these, we did not have MiD, so they were derived from Pendlerstatistik (or from BVWP).
-		{
-			final ActivityParams params = new ActivityParams( "pvHome" );
-			params.setTypicalDuration( 6. * 3600. ); // not sure why this is set to 6hrs; does not make sense.  Maybe should have been 16 and is a typo.  kai, mar'19
-			config.planCalcScore().addActivityParams( params );
-		}
-		{
-			final ActivityParams params = new ActivityParams( "pvWork" );
-			params.setTypicalDuration( 9. * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		// freight traffic ("Gueterverkehr").  Derived from BVWP.
-		{
-			final ActivityParams params = new ActivityParams( "gvHome" );  // the "home" does not make sense here. kai, mar'19
-			params.setTypicalDuration( 6. * 3600. );
-			config.planCalcScore().addActivityParams( params );
-		}
-		// ---
-		// none of the above has opening/closing time, so one cannot use this with time mutation.
-
+		config.qsim().setLinkDynamics( QSimConfigGroup.LinkDynamics.PassingQ );
 
 		return config ;
 	}
@@ -253,21 +84,21 @@ public class RunMatsim4Munich{
 		}
 		scenario = ScenarioUtils.loadScenario( config ) ;
 
+		for( Link link : scenario.getNetwork().getLinks().values() ){
+			link.setAllowedModes( new HashSet<>( Arrays.asList( TransportMode.car, TransportMode.bike, TransportMode.ride ) ) ) ;
+		}
+
+		for( Person person : scenario.getPopulation().getPersons().values() ){
+			Plan plan = person.getSelectedPlan() ;
+			List<Leg> legs = TripStructureUtils.getLegs( plan );
+			for( Leg leg : legs ){
+				if ( leg.getMode().equals( TransportMode.bike ) ) {
+					leg.setRoute( null );
+				}
+			}
+		}
+
 		return scenario ;
-	}
-
-	public final void addOverridingModule( AbstractModule controlerModule ) {
-		if ( controler==null ){
-			prepareControler();
-		}
-		controler.addOverridingModule( controlerModule ) ;
-	}
-
-	public final void addOverridingQSimModule( AbstractQSimModule qSimModule ) {
-		if ( controler==null ){
-			prepareControler();
-		}
-		controler.addOverridingQSimModule( qSimModule ) ;
 	}
 
 	public final void run() {
@@ -277,7 +108,7 @@ public class RunMatsim4Munich{
 		controler.run() ;
 	}
 
-	public final Controler prepareControler() {
+	public final AllowsConfiguration prepareControler() {
 		if ( scenario==null ) {
 			prepareScenario() ;
 		}
