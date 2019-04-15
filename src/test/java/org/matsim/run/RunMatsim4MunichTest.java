@@ -22,9 +22,13 @@ import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.matsim.api.core.v01.TransportMode;
 import org.matsim.core.config.Config;
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting;
 import org.matsim.testcases.MatsimTestUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author nagel
@@ -43,6 +47,17 @@ public class RunMatsim4MunichTest{
 			config.controler().setLastIteration(1);
 			config.controler().setOutputDirectory( utils.getOutputDirectory() );
 			config.controler().setOverwriteFileSetting(OverwriteFileSetting.deleteDirectoryIfExists);
+
+			final List<String> networkModes = Arrays.asList( new String[]{TransportMode.car, TransportMode.bike} );
+
+			config.plansCalcRoute().removeModeRoutingParams( TransportMode.bike );
+
+			config.plansCalcRoute().setNetworkModes( networkModes );
+
+			config.travelTimeCalculator().setSeparateModes( true );
+
+			config.qsim().setMainModes(  networkModes );
+
 			matsim.run() ;
 		} catch ( Exception ee ) {
 			Logger.getLogger(this.getClass()).fatal("there was an exception: \n" + ee ) ;
