@@ -73,7 +73,7 @@ This will update your repository to the newest version.
 
 To work outside the GUI, you need
 * the code (from github) in `<someDirectoryRoot>/<something>/matsim-munich`
-* the data (from svn) in `<someDirectoryRoot>/<somethingElse>/shared-svn/projects/matsim-munich`
+* the data (from svn) in `<someDirectoryRoot>/shared-svn/projects/matsim-munich`
 
 More technically, the code searches, from the java root, for the data by `../../shared-svn/projects/matsim-munich` .  This is a bit annoying, but everything else (e.g. git lsf, git fat) is worse.
 
