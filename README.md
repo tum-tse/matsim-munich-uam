@@ -1,4 +1,4 @@
-# The MATSim Open Berlin Scenario
+# The MATSim Munich Scenario
 
 ### About this project
 

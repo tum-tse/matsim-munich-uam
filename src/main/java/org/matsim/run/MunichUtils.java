@@ -7,6 +7,7 @@ class MunichUtils{
 	static void createActivityTypes( Config config ){
 		// activities (alphabetic).  Presumably revealed activity durations from MidMUC.  This may explain why they extend to different maximum number of hours.  However, a
 		// pickup activity of 22hours does not make sense, so it is not entirely clear.  kai, mar'19
+		// v0 presumably has activity types from MidMUC.  v2 has modified versions of them.  kai/ihab, sep'19
 		// ---
 		{
 			final PlanCalcScoreConfigGroup.ActivityParams params = new PlanCalcScoreConfigGroup.ActivityParams( "busi0.5H" );
@@ -30,7 +31,7 @@ class MunichUtils{
 			config.planCalcScore().addActivityParams( params );
 		}
 		// ---
-		// I don't know what the following is.  Maybe "visit friends"?  kai, mar'19
+		// I don't know what the following is.  Maybe "visit friends"?  kai, mar'19  Or a mis-spelt "freight"?
 		{
 			final PlanCalcScoreConfigGroup.ActivityParams params = new PlanCalcScoreConfigGroup.ActivityParams( "frie0.5H" );
 			params.setTypicalDuration( 0.5 * 3600. );
