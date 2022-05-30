@@ -6,6 +6,8 @@ This repository provides a MATSim transport model for Munich, provided by the [A
 
  - Moeckel, Rolf, Kuehnel, Nico, Llorca, Carlos, Moreno, Ana Tsui and Rayaprolu, Hema (2020) Agent-based Simulation to Improve Policy Sensitivity of Trip-Based Models. Journal of Advanced Transportation, 2020. https://doi.org/10.1155/2020/1902162
 
+The scenario is ultimately coming from a SILO model that is maintaned elsewhere.
+
 ### Note
 
 Handling of large files within git is not without problems (git lfs files are not included in the zip download; we have to pay; ...).  In order to avoid this, large files, both on the input and on the output side, reside at https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/munich/munich-v1/input/. These data are open and can be downloaded.   
