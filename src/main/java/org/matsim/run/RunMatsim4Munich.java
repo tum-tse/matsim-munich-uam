@@ -41,7 +41,6 @@ import org.matsim.core.replanning.selectors.RandomPlanSelector;
 import org.matsim.core.router.TripRouter;
 import org.matsim.core.router.TripStructureUtils;
 import org.matsim.core.scenario.ScenarioUtils;
-import org.matsim.core.utils.timing.TimeInterpretation;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -140,11 +139,10 @@ public class RunMatsim4Munich{
 					@Inject Scenario sc;
 					@Inject private SubtourModeChoiceConfigGroup subtourModeChoiceConfigGroup;
 					@Inject private PermissibleModesCalculator permissibleModesCalculator;
-					@Inject private TimeInterpretation timeInterpretation;
 					@Override public PlanStrategy get() {
 						final PlanStrategyImpl.Builder builder = new PlanStrategyImpl.Builder(new RandomPlanSelector<>());
 						builder.addStrategyModule(new SubtourModeChoice(sc.getConfig().global(), subtourModeChoiceConfigGroup, permissibleModesCalculator) );
-						builder.addStrategyModule(new ReRoute(sc, tripRouterProvider, timeInterpretation) );
+						builder.addStrategyModule(new ReRoute(sc, tripRouterProvider) );
 						return builder.build();
 					}
 				} );
