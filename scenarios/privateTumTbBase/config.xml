@@ -478,8 +478,6 @@
         </parameterset>
 		</module>
 		<module name="planscalcroute" >
-            <!-- Defines how access and egress to main mode is simulated. Either of [none, accessEgressModeToLink, walkConstantTimeToLink, accessEgressModeToLinkPlusTimeConstant], Current default=none which means no access or egress trips are simulated. -->
-            <param name="accessEgressType" value="accessEgressModeToLink" />
             <!-- All the modes for which the router is supposed to generate network routes (like car) -->
             <param name="networkModes" value="car" />
             <parameterset type="teleportedModeParameters" >

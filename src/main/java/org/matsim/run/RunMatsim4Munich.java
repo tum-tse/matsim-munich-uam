@@ -139,9 +139,10 @@ public class RunMatsim4Munich{
 					@Inject Scenario sc;
 					@Inject private SubtourModeChoiceConfigGroup subtourModeChoiceConfigGroup;
 					@Inject private PermissibleModesCalculator permissibleModesCalculator;
+					@Inject private Provider<TripRouter> tripRouterProvider;
 					@Override public PlanStrategy get() {
 						final PlanStrategyImpl.Builder builder = new PlanStrategyImpl.Builder(new RandomPlanSelector<>());
-						builder.addStrategyModule(new SubtourModeChoice(sc.getConfig().global(), subtourModeChoiceConfigGroup, permissibleModesCalculator) );
+						builder.addStrategyModule(new SubtourModeChoice(tripRouterProvider, sc.getConfig().global(), subtourModeChoiceConfigGroup) );
 						builder.addStrategyModule(new ReRoute(sc, tripRouterProvider) );
 						return builder.build();
 					}

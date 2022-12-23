@@ -48,6 +48,7 @@ public class RunMunichTumScenario {
         } else {
             throw new RuntimeException("need to provide path to config file. aborting ...");
         }
+        config.plansCalcRoute().setInsertingAccessEgressWalk(true);
         scenario = ScenarioUtils.loadScenario(config);
         controler = new Controler(scenario);
         controler.run();
