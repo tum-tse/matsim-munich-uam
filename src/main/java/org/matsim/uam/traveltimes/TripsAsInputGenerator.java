@@ -16,7 +16,7 @@ import java.util.*;
  * @author haowu
  */
 public class TripsAsInputGenerator {
-    private static boolean writeDescription = true;
+//    private static boolean writeDescription = true;
 
     public static void main(String[] args) throws IOException {
         System.out.println(
@@ -27,14 +27,15 @@ public class TripsAsInputGenerator {
         int j = 0;
         Path inputTripsPath = Path.of(args[j++]);
         Path outputTripsPath = Path.of(args[j++]);
+        final char delimiter = ',';
 
-        if (args.length > 2)
-            writeDescription = Boolean.parseBoolean(args[j]);
+/*        if (args.length > 2)
+            writeDescription = Boolean.parseBoolean(args[j]);*/
 
 
 
         //process trips
-        CSVPrinter csvWriter = new CSVPrinter(new FileWriter(outputTripsPath.toString()), CSVFormat.DEFAULT.withDelimiter(',').withFirstRecordAsHeader());
+        CSVPrinter csvWriter = new CSVPrinter(new FileWriter(outputTripsPath.toString()), CSVFormat.DEFAULT.withDelimiter(delimiter).withFirstRecordAsHeader());
         List<String> tripsTitleRow = Arrays.asList
                 ("from_x", "from_y", "to_x", "to_y", "start_time");
         csvWriter.printRecord(tripsTitleRow);
