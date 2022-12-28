@@ -17,6 +17,16 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
 public class StationsCSVGenerator {
+    final static int Z = 0;
+    final static int VTOL_Z = 1000;
+    final static double GROUND_ACCESS_CAPACITY = 999;
+    final static double GROUND_ACCESS_FREESPEED = 35;
+    final static double FLIGHT_ACCESS_CAPACITY = 999;
+    final static double FLIGHT_ACCESS_FREESPEED = 35;
+    final static int PRE_FLIGHT_TIME = 900;
+    final static int POST_FLIGHT_TIME = 300;
+    final static int DEFAULT_WAIT_TIME = 480;
+
     public static void main(String[] args) throws IOException {
         System.out.println(
                 "ARGS: vertiports.shp* outputfile-name.csv* write-description");
@@ -62,15 +72,15 @@ public class StationsCSVGenerator {
                 outputRow.add((String) feature.getAttributes().get( 1 ));
                 outputRow.add(Double.toString(point.getCoordinate().x));
                 outputRow.add(Double.toString(point.getCoordinate().y));
-                outputRow.add(Integer.toString(0));
-                outputRow.add(Integer.toString(600));
-                outputRow.add(Double.toString(999));
-                outputRow.add(Double.toString(35));
-                outputRow.add(Double.toString(999));
-                outputRow.add(Double.toString(35));
-                outputRow.add(Integer.toString(900));
-                outputRow.add(Integer.toString(300));
-                outputRow.add(Integer.toString(480));
+                outputRow.add(Integer.toString(Z));
+                outputRow.add(Integer.toString(VTOL_Z));
+                outputRow.add(Double.toString(GROUND_ACCESS_CAPACITY));
+                outputRow.add(Double.toString(GROUND_ACCESS_FREESPEED));
+                outputRow.add(Double.toString(FLIGHT_ACCESS_CAPACITY));
+                outputRow.add(Double.toString(FLIGHT_ACCESS_FREESPEED));
+                outputRow.add(Integer.toString(PRE_FLIGHT_TIME));
+                outputRow.add(Integer.toString(POST_FLIGHT_TIME));
+                outputRow.add(Integer.toString(DEFAULT_WAIT_TIME));
 
 
                 if (tripsTitleRow.size() != outputRow.size()) {
