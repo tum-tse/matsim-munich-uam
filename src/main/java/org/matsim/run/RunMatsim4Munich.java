@@ -126,7 +126,7 @@ public class RunMatsim4Munich{
 			}
 		} );
 
-		controler.addOverridingModule(new AbstractModule() {
+/*		controler.addOverridingModule(new AbstractModule() {
 			@Override
 			public void install() {
 				final Provider<TripRouter> tripRouterProvider = binder().getProvider(TripRouter.class );
@@ -148,7 +148,7 @@ public class RunMatsim4Munich{
 					}
 				} );
 			}
-		});
+		});*/
 
 
 		return controler ;
