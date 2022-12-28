@@ -17,6 +17,9 @@
 	  <!--<matsim.version>0.11.0-2019w01-SNAPSHOT</matsim.version>-->
 
 		<!--<matsim.version>12.0-SNAPSHOT</matsim.version>-->
+
+		<geotools.version>21.1</geotools.version>
+		<!--		<geotools.version>22.3</geotools.version>-->
 	</properties>
 
 	<repositories>
@@ -25,7 +28,8 @@
 			<!-- Geotools is not on Maven central -->
 			<id>osgeo</id>
 			<name>Geotools repository</name>
-			<url>http://download.osgeo.org/webdav/geotools</url>
+<!--			<url>http://download.osgeo.org/webdav/geotools</url>-->
+			<url>https://repo.osgeo.org/repository/release/</url>
 		</repository>
 		<repository>
 			<!-- Repository for MATSim releases (MATSim is not on Maven central) -->
@@ -71,6 +75,26 @@
 			<!--<version>${matsim.version}</version>-->
 		<!--</dependency>-->
 
+<!--		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-main</artifactId>
+			<version>${geotools.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-referencing</artifactId>
+			<version>${geotools.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-shapefile</artifactId>
+			<version>${geotools.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-epsg-hsql</artifactId>
+			<version>${geotools.version}</version>
+		</dependency>-->
 	</dependencies>
 
 	<build>
