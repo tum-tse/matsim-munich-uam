@@ -34,7 +34,7 @@ public class StationsCSVGenerator {
 
         // ARGS
         int j = 0;
-        final String shapePathname = args[j++];
+        final String shapePathName = args[j++];
         Path outputTripsPath = Path.of(args[j++]);
 
         final char delimiter = ',';
@@ -49,7 +49,7 @@ public class StationsCSVGenerator {
 
 
         //read vertiport shape file
-        FileDataStore store = FileDataStoreFinder.getDataStore( new File( shapePathname ) );
+        FileDataStore store = FileDataStoreFinder.getDataStore( new File( shapePathName ) );
 
         FeatureReader<SimpleFeatureType, SimpleFeature> reader = store.getFeatureReader();
 

@@ -5,6 +5,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.matsim.core.utils.misc.Time;
+import org.matsim.uam.utils.TimeUtils;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class TripsAsInputGenerator {
                 double fromY = Double.parseDouble(record.get("start_y"));
                 double toX = Double.parseDouble(record.get("end_x"));
                 double toY = Double.parseDouble(record.get("end_y"));
-                CustomTimeWriter customTimeWriter = new DefaultTimeWriter();
+                TimeUtils.CustomTimeWriter customTimeWriter = new TimeUtils.DefaultTimeWriter();
                 double departureTime = Time.parseTime(record.get("dep_time"));
 
 
@@ -72,21 +73,4 @@ public class TripsAsInputGenerator {
 
     }
 
-    public interface CustomTimeWriter {
-        String writeTime(double time);
-    }
-
-    static class SecondsFromMidnightTimeWriter implements CustomTimeWriter {
-        @Override
-        public String writeTime(double time) {
-            return Long.toString((long) time);
-        }
-    }
-
-    static class DefaultTimeWriter implements CustomTimeWriter {
-        @Override
-        public String writeTime(double time) {
-            return Time.writeTime(time);
-        }
-    }
 }
