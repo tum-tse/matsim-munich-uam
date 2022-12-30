@@ -19,9 +19,9 @@ import org.opengis.feature.simple.SimpleFeatureType;
 public class StationsCSVGenerator {
     final static int Z = 0;
     final static int VTOL_Z = 1000;
-    final static double GROUND_ACCESS_CAPACITY = 999;
+    final static double GROUND_ACCESS_CAPACITY = 999999;
     final static double GROUND_ACCESS_FREESPEED = 35;
-    final static double FLIGHT_ACCESS_CAPACITY = 999;
+    final static double FLIGHT_ACCESS_CAPACITY = 999999;
     final static double FLIGHT_ACCESS_FREESPEED = 35;
     final static int PRE_FLIGHT_TIME = 900;
     final static int POST_FLIGHT_TIME = 300;
