@@ -21,6 +21,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -28,39 +29,49 @@ import java.util.Set;
 public class CreateLandUseShp {
     private static final Logger log = LogManager.getLogger(CreateLandUseShp.class);
     private static final Set<String> INCLUDE = Set.of(
-            "commercial",
-            "construction",
-            "industrial",
-            "residential",
-            "retail",
-            "allotments",
-            "military",
-            "recreation_ground",
-            "park",
-            "building"
+            //"commercial",
+            //"construction",
+            //"industrial",
+            "residential"//,
+            //"retail",
+            //"allotments",
+            //"military",
+            //"recreation_ground",
+            //"park",
+            //"building"
     );
 
-    //@CommandLine.Parameters(paramLabel = "INPUT", arity = "1..*", description = "Path to input shapes")
-    //private List<Path> inputs;
-    private static List<Path> inputs;
-
-    //@CommandLine.Option(names = "--layer", arity = "0..*", description = "Name of the shape file if input is a zip")
-    //private List<String> layer = List.of("gis_osm_landuse_a_free_1.shp", "gis_osm_buildings_a_free_1.shp");
-    private static List<String> layer = List.of("gis_osm_landuse_a_free_1.shp", "gis_osm_buildings_a_free_1.shp");
-
-    //@CommandLine.Option(names = "--attr", description = "Name of attribute to match", defaultValue = "fclass")
-    //private String attr;
-    private static String attr;
-
-    //@CommandLine.Option(names = "--output", description = "Output path for shape file", required = true)
-    //private Path output;
-    private static Path output;
-
-    //@CommandLine.Mixin
-    //private CrsOptions crs = new CrsOptions();
-    private static CrsOptions crs = new CrsOptions();
-
     public static void main(String[] args) throws Exception {
+        //@CommandLine.Parameters(paramLabel = "INPUT", arity = "1..*", description = "Path to input shapes")
+        //private List<Path> inputs;
+        List<Path> inputs = new ArrayList<>();
+        inputs.add(Path.of("/Users/haowu/Documents/TSE/UAM/AMI-AirShuttle/osm/geofabrik/high-resolution/Bavaria/mittelfranken-latest-free.shp.zip"));
+        inputs.add(Path.of("/Users/haowu/Documents/TSE/UAM/AMI-AirShuttle/osm/geofabrik/high-resolution/Bavaria/niederbayern-latest-free.shp.zip"));
+        inputs.add(Path.of("/Users/haowu/Documents/TSE/UAM/AMI-AirShuttle/osm/geofabrik/high-resolution/Bavaria/oberbayern-latest-free.shp.zip"));
+        inputs.add(Path.of("/Users/haowu/Documents/TSE/UAM/AMI-AirShuttle/osm/geofabrik/high-resolution/Bavaria/oberfranken-latest-free.shp.zip"));
+        inputs.add(Path.of("/Users/haowu/Documents/TSE/UAM/AMI-AirShuttle/osm/geofabrik/high-resolution/Bavaria/oberpfalz-latest-free.shp.zip"));
+        inputs.add(Path.of("/Users/haowu/Documents/TSE/UAM/AMI-AirShuttle/osm/geofabrik/high-resolution/Bavaria/schwaben-latest-free.shp.zip"));
+        inputs.add(Path.of("/Users/haowu/Documents/TSE/UAM/AMI-AirShuttle/osm/geofabrik/high-resolution/Bavaria/unterfranken-latest-free.shp.zip"));
+
+        //@CommandLine.Option(names = "--layer", arity = "0..*", description = "Name of the shape file if input is a zip")
+        //private List<String> layer = List.of("gis_osm_landuse_a_free_1.shp", "gis_osm_buildings_a_free_1.shp");
+        List<String> layer = List.of("gis_osm_landuse_a_free_1.shp", "gis_osm_buildings_a_free_1.shp");
+
+        //@CommandLine.Option(names = "--attr", description = "Name of attribute to match", defaultValue = "fclass")
+        //private String attr;
+        String attr = "fclass";
+
+        //@CommandLine.Option(names = "--output", description = "Output path for shape file", required = true)
+        //private Path output;
+        Path output = Path.of("/Users/haowu/Documents/TSE/UAM/AMI-AirShuttle/WP6-5/shape_files/land-use/Bayern/bayern-latest-free_residential.shp/");
+
+        //@CommandLine.Mixin
+        //private CrsOptions crs = new CrsOptions();
+        CrsOptions crs = new CrsOptions();
+
+
+
+
         log.info("Reading landuse data from {}", inputs);
 
         if (!inputs.stream().allMatch(Files::exists)) {
