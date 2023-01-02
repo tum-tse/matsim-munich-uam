@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
+@Deprecated
 public class CreateLandUseShp {
     private static final Logger log = LogManager.getLogger(CreateLandUseShp.class);
     private static final Set<String> INCLUDE = Set.of(
