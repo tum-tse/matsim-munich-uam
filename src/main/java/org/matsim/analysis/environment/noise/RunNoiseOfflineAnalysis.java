@@ -16,7 +16,7 @@ public class RunNoiseOfflineAnalysis {
 
     public static void main(String[] args) {
         System.out.println(
-                "ARGS: run_directory* output_directory* receiver_point_gap(default: 100)* grid_max_x* grid_max_y* grid_min_x* grid_min_y* write-description");
+                "ARGS: run_directory* output_directory* receiver_point_gap(default: 100)* grid_max_x* grid_max_y* grid_min_x* grid_min_y* runId(of the matsim scenario)* write-description");
         System.out.println("(* required)");
 
         // ARGS
@@ -28,11 +28,14 @@ public class RunNoiseOfflineAnalysis {
         final double gridMaxY = Double.parseDouble(args[j++]);
         final double gridMinX = Double.parseDouble(args[j++]);
         final double gridMinY = Double.parseDouble(args[j++]);
+        final String runId = args.length == 8 ? args[j++] : "";
+
 
         // settings for noise modeling
         Config config = ConfigUtils.createConfig(new NoiseConfigGroup());
-        config.network().setInputFile(runDirectory + "output_network.xml.gz");
-        config.plans().setInputFile(runDirectory + "output_plans.xml.gz");
+        config.controler().setRunId(runId);
+        config.network().setInputFile(runDirectory + runId  + "." + "output_network.xml.gz");
+        config.plans().setInputFile(runDirectory + runId  + "." + "output_plans.xml.gz");
         config.controler().setOutputDirectory(runDirectory);
         NoiseConfigGroup noiseParameters = ConfigUtils.addOrGetModule(config, NoiseConfigGroup.class);
         noiseParameters.setReceiverPointGap(receiverPointGap);
