@@ -22,8 +22,11 @@ import org.matsim.vehicles.EngineInformation;
 import org.matsim.vehicles.VehicleType;
 import org.matsim.vehicles.VehicleUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  *
@@ -33,20 +36,40 @@ import java.util.List;
  */
 public class RunEmissionOfflineAnalysis {
     private static final Logger log = LogManager.getLogger(RunEmissionOfflineAnalysis.class );
-    private static final String eventsFile =  "output/test_emission4Pt/pt-tutorial_standard/output_events.xml.gz"; // The output event of the standard matsim scenario
-    private static final String emissionEventOutputPath = "output/test_emission4Pt/pt-tutorial_standard/emission.events.offline.xml.gz";
 
-    public static void main( String [] args ) {
+    public static void main( String [] args ) throws IOException {
+        System.out.println(
+                "ARGS: cold_emission_factors_file* warm_emission_factors_file* run_directory* run_id(of the matsim scenario)* write-description");
+        System.out.println("(* required)");
 
-        Config config = ConfigUtils.loadConfig( "../0.config.xml" ); // Enter the path of config file with which you run the matsim scenario
-        config.vehicles().setVehiclesFile("output/test_emission4Pt/pt-tutorial_standard/output_allVehicles.xml.gz"); // The output vehicle files which contains the vehicle information which will be used later!
+        // ARGS
+        int j = 0;
+        final String coldEmissionFactorsFile = args[j++];
+        final String warmEmissionFactorsFile = args[j++];
+        final String runDirectory = args[j++];
+            final String emissionEventOutputPath = runDirectory + "/" + "emission";
+            if (!Files.exists(Path.of(emissionEventOutputPath))) {
+                Files.createDirectory(Path.of(emissionEventOutputPath));
+                log.info("emission folder created is under: " + emissionEventOutputPath);
+            } else {
+                log.info("emission folder under '" + emissionEventOutputPath + "' already exists!");
+            }
+        final String runId = args.length == 4 ? args[j++] : "";
+            final String emissionEventOutputFile = emissionEventOutputPath + "/" + runId + "." + "emission.events.offline.xml.gz";
+            final String eventsFile = runDirectory + "/" + runId + "." + "output_events.xml.gz";
+            final String configFile = runDirectory + "/" + runId + "." + "output_config.xml";
+            final String allVehiclesFile = /*runDirectory + "/" +*/ runId + "." + "output_allVehicles.xml.gz";
+
+        Config config = ConfigUtils.loadConfig( configFile ); // Enter the path of config file with which you run the matsim scenario
+        config.controler().setRunId(runId);
+        config.vehicles().setVehiclesFile(allVehiclesFile); // The output vehicle files which contains the vehicle information which will be used later!
         //config.qsim().setVehiclesSource(QSimConfigGroup.VehiclesSource.modeVehicleTypesFromVehiclesData);
         config.plansCalcRoute().clearTeleportedModeParams();
 
         EmissionsConfigGroup emissionConfig = ConfigUtils.addOrGetModule( config, EmissionsConfigGroup.class );
         {
-            emissionConfig.setAverageColdEmissionFactorsFile( "../EFA_ColdStart_Vehcat_2020_Average_perVehCat_Bln_carOnly.csv" );
-            emissionConfig.setAverageWarmEmissionFactorsFile( "../EFA_HOT_Vehcat_2020_Average_perVehCat_Bln_carOnly.csv" );
+            emissionConfig.setAverageColdEmissionFactorsFile( coldEmissionFactorsFile );
+            emissionConfig.setAverageWarmEmissionFactorsFile( warmEmissionFactorsFile );
             emissionConfig.setHbefaTableConsistencyCheckingLevel(EmissionsConfigGroup.HbefaTableConsistencyCheckingLevel.allCombinations);
             emissionConfig.setHbefaVehicleDescriptionSource(EmissionsConfigGroup.HbefaVehicleDescriptionSource.asEngineInformationAttributes);
             emissionConfig.setHandlesHighAverageSpeeds(false);
@@ -159,7 +182,7 @@ public class RunEmissionOfflineAnalysis {
         // ---
 
         // add events writer into emissions event handler
-        final EventWriterXML eventWriterXML = new EventWriterXML( emissionEventOutputPath );
+        final EventWriterXML eventWriterXML = new EventWriterXML( emissionEventOutputFile );
         eventsManager.addHandler(eventWriterXML);
 
         // read events file into the events reader.  EmissionsModule and events writer have been added as handlers, and will act accordingly.
