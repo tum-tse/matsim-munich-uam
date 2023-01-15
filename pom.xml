@@ -30,7 +30,7 @@
 		<repository>
 			<!-- Repository for MATSim releases (MATSim is not on Maven central) -->
 			<id>matsim</id>
-			<url>https://dl.bintray.com/matsim/matsim</url>
+			<url>https://repo.matsim.org/repository/matsim</url>
 		</repository>
  		<repository>
 			<!-- For MATSim snapshots: -->
@@ -71,6 +71,17 @@
 			<!--<version>${matsim.version}</version>-->
 		<!--</dependency>-->
 
+
+		<dependency>
+			<groupId>org.matsim.contrib</groupId>
+			<artifactId>emissions</artifactId>
+			<version>${matsim.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.matsim.contrib</groupId>
+			<artifactId>noise</artifactId>
+			<version>${matsim.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
