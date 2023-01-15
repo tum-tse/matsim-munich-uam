@@ -6,31 +6,41 @@ import org.matsim.contrib.noise.NoiseConfigGroup;
 import org.matsim.contrib.noise.NoiseOfflineCalculation;
 import org.matsim.contrib.noise.ProcessNoiseImmissions;
 import org.matsim.core.config.Config;
-import org.matsim.core.config.ConfigGroup;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.scenario.ScenarioUtils;
 
 public class RunNoiseOfflineAnalysis {
 
-    private static String runDirectory = "outputExpressBus/";
-    private static String outputDirectory = "outputExpressBus/noise/";
-
     public RunNoiseOfflineAnalysis() {
     }
 
     public static void main(String[] args) {
-        Config config = ConfigUtils.createConfig(new ConfigGroup[]{new NoiseConfigGroup()});
+        System.out.println(
+                "ARGS: run_directory* output_directory* receiver_point_gap(default: 100)* grid_max_x* grid_max_y* grid_min_x* grid_min_y* write-description");
+        System.out.println("(* required)");
+
+        // ARGS
+        int j = 0;
+        final String runDirectory = args[j++];
+        String outputDirectory = args[j++];
+        final double receiverPointGap = Integer.parseInt(args[j++]);
+        final double gridMaxX = Double.parseDouble(args[j++]);
+        final double gridMaxY = Double.parseDouble(args[j++]);
+        final double gridMinX = Double.parseDouble(args[j++]);
+        final double gridMinY = Double.parseDouble(args[j++]);
+
+        // settings for noise modeling
+        Config config = ConfigUtils.createConfig(new NoiseConfigGroup());
         config.network().setInputFile(runDirectory + "output_network.xml.gz");
         config.plans().setInputFile(runDirectory + "output_plans.xml.gz");
         config.controler().setOutputDirectory(runDirectory);
-        NoiseConfigGroup noiseParameters = (NoiseConfigGroup)ConfigUtils.addOrGetModule(config, NoiseConfigGroup.class);
-        noiseParameters.setReceiverPointGap(100);
-        noiseParameters.setReceiverPointsGridMaxY(3000);
-        noiseParameters.setReceiverPointsGridMinY(-3000);
-        noiseParameters.setReceiverPointsGridMaxX(7000);
-        noiseParameters.setReceiverPointsGridMinX(-100);
-
-        noiseParameters.setHgvIdPrefixes("departure");
+        NoiseConfigGroup noiseParameters = ConfigUtils.addOrGetModule(config, NoiseConfigGroup.class);
+        noiseParameters.setReceiverPointGap(receiverPointGap);
+        noiseParameters.setReceiverPointsGridMaxY(gridMaxY);
+        noiseParameters.setReceiverPointsGridMinY(gridMinY);
+        noiseParameters.setReceiverPointsGridMaxX(gridMaxX);
+        noiseParameters.setReceiverPointsGridMinX(gridMinX);
+        //noiseParameters.setHgvIdPrefixes("departure"); //ToDo: need to investigate a little bit!
 
         Scenario scenario = ScenarioUtils.loadScenario(config);
         NoiseOfflineCalculation noiseCalculation = new NoiseOfflineCalculation(scenario, outputDirectory);
