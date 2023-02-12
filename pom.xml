@@ -41,6 +41,11 @@
 			<id>ojo-snapshots</id>
 			<url>http://oss.jfrog.org/libs-snapshot</url>
 		</repository>
+
+		<repository>
+			<id>eth-ivt-uam</id>
+			<url>https://packagecloud.io/eth-ivt/uam/maven2</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -100,6 +105,12 @@
 			<groupId>com.beust</groupId>
 			<artifactId>jcommander</artifactId>
 			<version>1.82</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.bhl.matsim</groupId>
+			<artifactId>matsim-uam</artifactId>
+			<version>3.0.0</version>
 		</dependency>
 	</dependencies>
 
