@@ -1,12 +1,7 @@
 package org.matsim.uam.network.indirectRoutes;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +19,6 @@ import org.matsim.api.core.v01.network.Node;
 import org.matsim.contrib.util.CSVReaders;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
-import org.matsim.core.config.ConfigWriter;
-import org.matsim.core.config.groups.NetworkConfigGroup;
 import org.matsim.core.network.NetworkUtils;
 import org.matsim.core.network.algorithms.NetworkCleaner;
 import org.matsim.core.network.algorithms.TransportModeNetworkFilter;
@@ -36,16 +29,12 @@ import org.matsim.core.router.util.LeastCostPathCalculator.Path;
 import org.matsim.core.router.util.TravelTime;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.trafficmonitoring.FreeSpeedTravelTime;
-import org.matsim.core.utils.collections.Tuple;
 import org.matsim.core.utils.geometry.CoordUtils;
-import org.matsim.core.utils.io.MatsimXmlWriter;
 
 import com.google.common.collect.Iterables;
 
 import net.bhl.matsim.uam.router.UAMFlightSegments;
-import net.bhl.matsim.uam.router.strategy.UAMStrategy;
 import net.bhl.matsim.uam.run.UAMConstants;
-import net.bhl.matsim.uam.scenario.utils.ConfigAddUAMParameters;
 
 /**
  * This script creates UAM-including MATSim network and corresponding
@@ -70,7 +59,7 @@ public class CreateIndirectUAMRoutes {
     private static final String name_uam_station_flight_access = "_fa";
     private static final String name_uam_station_flight_level = "_fl";
 
-    private static final String name_uam_dtd = "src/main/resources/dtd/uam.dtd";
+    //private static final String name_uam_dtd = "src/main/resources/dtd/uam.dtd";
 
     private static final double min_link_length = 1;
     private static final double no_length = -1;
@@ -82,25 +71,28 @@ public class CreateIndirectUAMRoutes {
     private static double uamLinkCapacity = -1;
 
     public static void main(String[] args) {
-        System.out.println("ARGS: config.xml* uam-stations.csv* flight-nodes.csv* flight-links.csv* uam-vehicles.csv");
+        //System.out.println("ARGS: config.xml* uam-stations.csv* flight-nodes.csv* flight-links.csv* uam-vehicles.csv");
+        System.out.println("ARGS: uam-stations.csv*");
         System.out.println("(* required)");
 
         // ARGS
         int j = 0;
-        String configInput = args[j++];
+        //String configInput = args[j++];
         String stationInput = args[j++];
         String nodesInput = args[j++];
         String linksInput = args[j++];
-        String vehicleInput = null;
+        //String vehicleInput = null;
+        String outputPath = args[j++];
+        String networkFileName = args[j++];
 
-        if (args.length > j)
-            vehicleInput = args[j];
+/*        if (args.length > j)
+            vehicleInput = args[j];*/
 
         // Run
-        convert(configInput, stationInput, nodesInput, linksInput, vehicleInput);
+        convert(/*configInput, */stationInput, nodesInput, linksInput/*, vehicleInput*/, outputPath, networkFileName);
     }
 
-    public static void convert (String configInput, String stationInput, double uamMaxLinkSpeed, double uamLinkCapacity) {
+/*    public static void convert (String configInput, String stationInput, double uamMaxLinkSpeed, double uamLinkCapacity) {
         convert(configInput, stationInput, uamMaxLinkSpeed, uamLinkCapacity, null);
     }
 
@@ -113,22 +105,22 @@ public class CreateIndirectUAMRoutes {
 
     public static void convert(String configInput, String stationInput, String nodesInput, String linksInput) {
         convert(configInput, stationInput, nodesInput, linksInput, null);
-    }
+    }*/
 
-    public static void convert(String configInput, String stationInput, String nodesInput, String linksInput,
-                               String vehicleInput) {
+    public static void convert(/*String configInput, */String stationInput, String nodesInput, String linksInput/*,
+                               String vehicleInput*/, String outputPath, String networkFileName) {
         // READ REQUIRED INPUT FILES
-        Config config = ConfigUtils.loadConfig(configInput);
+        Config config = ConfigUtils.createConfig();
         Scenario scenario = ScenarioUtils.loadScenario(config);
         Network network = scenario.getNetwork();
         List<String[]> stations = CSVReaders.readCSV(stationInput);
 
-        List<String[]> vehicles = null;
+/*        List<String[]> vehicles = null;
         if (vehicleInput != null)
-            vehicles = CSVReaders.readCSV(vehicleInput);
+            vehicles = CSVReaders.readCSV(vehicleInput);*/
 
         // GENERATE FLIGHT LINKS AND NODES FOR DIRECT OR USE INPUT FLIGHT NETWORK
-        if (nodesInput != null) {
+        //if (nodesInput != null) {
             List<String[]> nodes = CSVReaders.readCSV(nodesInput);
             List<String[]> links = CSVReaders.readCSV(linksInput);
 
@@ -159,7 +151,7 @@ public class CreateIndirectUAMRoutes {
 
                 addLink(network, from, to, modesUam, capacity, freespeed);
             }
-        } else {
+        /*} else {
             // DIRECT FLIGHT BETWEEN ALL STATIONS
             // create flight level accesses
             List<Id<Node>> flightAccesses = new ArrayList<>();
@@ -187,7 +179,7 @@ public class CreateIndirectUAMRoutes {
                     addLink(network, from, to, mode);
                 }
             }
-        }
+        }*/
 
         // PROVIDE MODE-SPECIFIC NETWORKS
         TransportModeNetworkFilter filter = new TransportModeNetworkFilter(network);
@@ -270,29 +262,29 @@ public class CreateIndirectUAMRoutes {
 
         }
 
-        // OUTPUT FOLDER
+/*        // OUTPUT FOLDER
         int pathIndex = configInput.lastIndexOf("/");
         String path = pathIndex >= 0 ? configInput.substring(0, pathIndex) : ".";
         path += "/" + UAMConstants.uam + "-scenario_" + new SimpleDateFormat("yyyy-MM-dd_HH-mm").format(new Date());
-        new File(path).mkdir();
+        new File(path).mkdir();*/
 
         // WRITE STATION DISTANCE CSV
         try {
-            calculateStationDistances(network, stationIDs, path + "/" + UAMConstants.uam + "_distances.csv");
+            calculateStationDistances(network, stationIDs, outputPath + "/" + UAMConstants.uam + "_distances.csv");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
         }
 
-        // ADD UAM VEHICLES
+/*        // ADD UAM VEHICLES
         String vehiclesFileName = "<REPLACE WITH UAM VEHICLES FILE NAME>";
         if (vehicleInput != null) {
             vehiclesFileName = UAMConstants.uam + "_vehicles.xml.gz";
             UAMVehiclesXmlWriter vehwriter = new UAMVehiclesXmlWriter();
             vehwriter.write(path + "/" + vehiclesFileName, stations, vehicles);
-        }
+        }*/
 
-        // UPDATE CONFIG
+/*        // UPDATE CONFIG
         String networkFileName = UAMConstants.uam + (nodesInput != null ? "_routed" : "") + "_network.xml.gz";
         NetworkConfigGroup networkConfigGroup = (NetworkConfigGroup) config.getModules().get("network");
         networkConfigGroup.setInputFile(networkFileName);
@@ -302,14 +294,14 @@ public class CreateIndirectUAMRoutes {
 
         // WRITE UAM CONFIG
         ConfigWriter configWriter = new ConfigWriter(config);
-        configWriter.write(path + "/" + UAMConstants.uam + "_config.xml");
+        configWriter.write(path + "/" + UAMConstants.uam + "_config.xml");*/
 
         // WRITE UAM NETWORK
         //network.setName((network.getName().isEmpty() ? "" : network.getName() + "-") + UAMConstants.uam);
         network.getAttributes().putAttribute(UAMConstants.uam + "MaxLinkFreeSpeed", uamMaxLinkSpeed);
         network.getAttributes().putAttribute(UAMConstants.uam + "DetourFactor", detourFactor);
         NetworkWriter netwriter = new NetworkWriter(network);
-        netwriter.write(path + "/" + networkFileName);
+        netwriter.write(outputPath + "/" + networkFileName);
 
         System.out.println("done.");
     }
@@ -465,7 +457,7 @@ public class CreateIndirectUAMRoutes {
         System.exit(-1);
     }
 
-    private static class UAMVehiclesXmlWriter extends MatsimXmlWriter {
+/*    private static class UAMVehiclesXmlWriter extends MatsimXmlWriter {
 
         public void write(String file, List<String[]> stations, List<String[]> vehicles) {
             openFile(file);
@@ -564,5 +556,5 @@ public class CreateIndirectUAMRoutes {
             }
         }
 
-    }
+    }*/
 }
