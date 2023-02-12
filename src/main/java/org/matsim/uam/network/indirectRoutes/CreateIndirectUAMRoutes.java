@@ -30,6 +30,7 @@ import org.matsim.core.router.util.TravelTime;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.core.trafficmonitoring.FreeSpeedTravelTime;
 import org.matsim.core.utils.geometry.CoordUtils;
+import org.matsim.core.network.io.MatsimNetworkReader;
 
 import com.google.common.collect.Iterables;
 
@@ -37,11 +38,9 @@ import net.bhl.matsim.uam.router.UAMFlightSegments;
 import net.bhl.matsim.uam.run.UAMConstants;
 
 /**
- * This script creates UAM-including MATSim network and corresponding
- * uam-vehicles file, which are prerequisites for running a UAM-enabled MATSim
- * simulation.
+ * This script creates UAM-including MATSim network (with indirect UAM routes)
  *
- * @author RRothfeld (Raoul Rothfeld)
+ * @author haowuintub based on RRothfeld (Hao Wu)
  */
 public class CreateIndirectUAMRoutes {
     // SETTINGS
@@ -72,12 +71,13 @@ public class CreateIndirectUAMRoutes {
 
     public static void main(String[] args) {
         //System.out.println("ARGS: config.xml* uam-stations.csv* flight-nodes.csv* flight-links.csv* uam-vehicles.csv");
-        System.out.println("ARGS: uam-stations.csv*");
+        System.out.println("ARGS: network-input-file.xml.gz* uam-stations.csv* output-path* network-name.xml.gz*");
         System.out.println("(* required)");
 
         // ARGS
         int j = 0;
         //String configInput = args[j++];
+        String networkInputFile = args[j++];
         String stationInput = args[j++];
         String nodesInput = args[j++];
         String linksInput = args[j++];
@@ -89,7 +89,7 @@ public class CreateIndirectUAMRoutes {
             vehicleInput = args[j];*/
 
         // Run
-        convert(/*configInput, */stationInput, nodesInput, linksInput/*, vehicleInput*/, outputPath, networkFileName);
+        convert(networkInputFile, /*configInput, */stationInput, nodesInput, linksInput/*, vehicleInput*/, outputPath, networkFileName);
     }
 
 /*    public static void convert (String configInput, String stationInput, double uamMaxLinkSpeed, double uamLinkCapacity) {
@@ -107,12 +107,15 @@ public class CreateIndirectUAMRoutes {
         convert(configInput, stationInput, nodesInput, linksInput, null);
     }*/
 
-    public static void convert(/*String configInput, */String stationInput, String nodesInput, String linksInput/*,
+    public static void convert(String networkInputFile, /*String configInput, */String stationInput, String nodesInput, String linksInput/*,
                                String vehicleInput*/, String outputPath, String networkFileName) {
         // READ REQUIRED INPUT FILES
         Config config = ConfigUtils.createConfig();
         Scenario scenario = ScenarioUtils.loadScenario(config);
         Network network = scenario.getNetwork();
+        Network networkToLookUp = scenario.getNetwork();
+        MatsimNetworkReader reader = new MatsimNetworkReader(network);
+        reader.readFile(networkInputFile);
         List<String[]> stations = CSVReaders.readCSV(stationInput);
 
 /*        List<String[]> vehicles = null;
