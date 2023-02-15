@@ -2,10 +2,7 @@ package org.matsim.uam.network.indirectRoutes;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import org.matsim.api.core.v01.Coord;
@@ -19,6 +16,7 @@ import org.matsim.api.core.v01.network.Node;
 import org.matsim.contrib.util.CSVReaders;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.gbl.Gbl;
 import org.matsim.core.network.NetworkUtils;
 import org.matsim.core.network.algorithms.NetworkCleaner;
 import org.matsim.core.network.algorithms.TransportModeNetworkFilter;
@@ -37,13 +35,20 @@ import com.google.common.collect.Iterables;
 import net.bhl.matsim.uam.router.UAMFlightSegments;
 import net.bhl.matsim.uam.run.UAMConstants;
 
+import org.apache.log4j.Logger;
+
 /**
  * This script creates UAM-including MATSim network (with indirect UAM routes)
  *
  * @author haowuintub based on RRothfeld (Hao Wu)
  */
 public class CreateIndirectUAMRoutes {
-    // SETTINGS
+    private static final Logger LOG = Logger.getLogger(CreateIndirectUAMRoutes.class);
+
+    // CUSTOMISED DEFAULT SETTINGS
+    private static final double flight_route_height = 600;
+    private static final double customised_uam_link_speed = 999;
+    private static final double customised_uam_link_capacity = 999;
     private static final boolean useZCoordinate = false; // default: false, i.e. use pseudo-3D (i.e. 2D) network
     private static final double detourFactor = 1.0; // default: 1.0, i.e. no detour from link distance
 
@@ -79,8 +84,8 @@ public class CreateIndirectUAMRoutes {
         //String configInput = args[j++];
         String networkInputFile = args[j++];
         String stationInput = args[j++];
-        String nodesInput = args[j++];
-        String linksInput = args[j++];
+        //String nodesInput = args[j++];
+        //String linksInput = args[j++];
         //String vehicleInput = null;
         String outputPath = args[j++];
         String networkFileName = args[j++];
@@ -89,7 +94,7 @@ public class CreateIndirectUAMRoutes {
             vehicleInput = args[j];*/
 
         // Run
-        convert(networkInputFile, /*configInput, */stationInput, nodesInput, linksInput/*, vehicleInput*/, outputPath, networkFileName);
+        convert(networkInputFile, /*configInput, */stationInput/*, nodesInput, linksInput, vehicleInput*/, outputPath, networkFileName);
     }
 
 /*    public static void convert (String configInput, String stationInput, double uamMaxLinkSpeed, double uamLinkCapacity) {
@@ -107,15 +112,18 @@ public class CreateIndirectUAMRoutes {
         convert(configInput, stationInput, nodesInput, linksInput, null);
     }*/
 
-    public static void convert(String networkInputFile, /*String configInput, */String stationInput, String nodesInput, String linksInput/*,
+    public static void convert(String networkInputFile, /*String configInput, */String stationInput/*, String nodesInput, String linksInput,
                                String vehicleInput*/, String outputPath, String networkFileName) {
         // READ REQUIRED INPUT FILES
-        Config config = ConfigUtils.createConfig();
-        Scenario scenario = ScenarioUtils.loadScenario(config);
+        //Config config = ConfigUtils.loadConfig(configInput);
+        Scenario scenario = ScenarioUtils.createScenario(ConfigUtils.createConfig());
         Network network = scenario.getNetwork();
-        Network networkToLookUp = scenario.getNetwork();
         MatsimNetworkReader reader = new MatsimNetworkReader(network);
         reader.readFile(networkInputFile);
+        Scenario scenarioToLookUp = ScenarioUtils.createScenario(ConfigUtils.createConfig());
+        Network networkToLookUp = scenarioToLookUp.getNetwork();
+        MatsimNetworkReader reader2 = new MatsimNetworkReader(networkToLookUp);
+        reader2.readFile(networkInputFile);
         List<String[]> stations = CSVReaders.readCSV(stationInput);
 
 /*        List<String[]> vehicles = null;
@@ -124,11 +132,11 @@ public class CreateIndirectUAMRoutes {
 
         // GENERATE FLIGHT LINKS AND NODES FOR DIRECT OR USE INPUT FLIGHT NETWORK
         //if (nodesInput != null) {
-            List<String[]> nodes = CSVReaders.readCSV(nodesInput);
-            List<String[]> links = CSVReaders.readCSV(linksInput);
+/*            List<String[]> nodes = CSVReaders.readCSV(nodesInput);
+            List<String[]> links = CSVReaders.readCSV(linksInput);*/
 
             // INDIRECT FLIGHT
-            // create flight nodes
+/*            // create flight nodes
             for (String[] line : Iterables.skip(nodes, 1)) { // skip CSV header
                 Id<Node> id = Id.createNodeId(name_uam_waypoints + encode(line[0]) + name_uam_station_flight_level);
                 addNode(network, id, Double.parseDouble(line[1]), Double.parseDouble(line[2]),
@@ -153,6 +161,49 @@ public class CreateIndirectUAMRoutes {
                 modesUam.add(UAMConstants.uam);
 
                 addLink(network, from, to, modesUam, capacity, freespeed);
+            }*/
+
+            Set<String> roadClass = new HashSet<>(Arrays.asList(/*"railway",*/ "motorway", "motorway_link", "trunk", "trunk_link", "primary", "primary_link"
+                    /*, "secondary", "tertiary", "unclassified", "residential", "living_street"*/));
+            // [null, unclassified, primary_link, tertiary, living_street, motorway_link, trunk, motorway, secondary, residential, railway, trunk_link, primary]
+            //roadClass.add("railway");
+/*            for (Link link : scenarioToLookUp.getNetwork().getLinks().values()) {
+                roadClass.add((String) link.getAttributes().getAttribute("type"));
+            }*/
+            LOG.info("the road class set: " + roadClass.toString());
+
+            for (Link link : scenario.getNetwork().getLinks().values()) {
+                if (roadClass.contains((String)link.getAttributes().getAttribute("type"))){
+                    //add corresponding UAM nodes
+                    //Id<Node> id = Id.createNodeId(name_uam_waypoints + encode(line[0]) + name_uam_station_flight_level);
+                    Id<Node> from = Id.createNodeId(name_uam_waypoints + encode(link.getFromNode().getId().toString()) + name_uam_station_flight_level);
+                    Id<Node> to = Id.createNodeId(name_uam_waypoints + encode(link.getToNode().getId().toString()) + name_uam_station_flight_level);
+                    if (!scenario.getNetwork().getNodes().containsKey(from)){
+                        addNode(network, from, Double.parseDouble(String.valueOf(link.getFromNode().getCoord().getX())), Double.parseDouble(String.valueOf(link.getFromNode().getCoord().getY())),
+                                Double.parseDouble(String.valueOf(flight_route_height)));
+                    }
+                    if (!scenario.getNetwork().getNodes().containsKey(to)) {
+                        addNode(network, to, Double.parseDouble(String.valueOf(link.getToNode().getCoord().getX())), Double.parseDouble(String.valueOf(link.getToNode().getCoord().getY())),
+                                Double.parseDouble(String.valueOf(flight_route_height)));
+                    }
+
+                    //add corresponding UAM links
+                    double capacity = Double.parseDouble(String.valueOf(customised_uam_link_capacity));
+                    double freespeed = Double.parseDouble(String.valueOf(customised_uam_link_speed));
+
+                    if (freespeed > uamMaxLinkSpeed)
+                        uamMaxLinkSpeed = freespeed;
+
+                    if (capacity > uamLinkCapacity)
+                        uamLinkCapacity = capacity;
+
+                    Set<String> modesUam = new HashSet<>();
+                    modesUam.add(UAMConstants.uam);
+
+                    addLink(network, from, to, modesUam, capacity, freespeed);
+                    // the opposite lane
+                    addLink(network, to, from, modesUam, capacity, freespeed);
+                }
             }
         /*} else {
             // DIRECT FLIGHT BETWEEN ALL STATIONS
@@ -262,7 +313,6 @@ public class CreateIndirectUAMRoutes {
             // ground access links
             addLink(network, node_ga_id, roadNode.getId(), modesCar, road_access_capacity, road_access_freespeed);
             addLink(network, roadNode.getId(), node_ga_id, modesCar, road_access_capacity, road_access_freespeed);
-
         }
 
 /*        // OUTPUT FOLDER
@@ -377,6 +427,7 @@ public class CreateIndirectUAMRoutes {
         addLink(network, from, to, modes, capacity, freespeed, no_length);
     }
 
+    private static int cnt = 10;
     private static void addLink(Network network, Id<Node> from, Id<Node> to, Set<String> modes, double capacity,
                                 double freespeed, double length){
         Map<Id<Node>, ? extends Node> allNodes = network.getNodes();
@@ -433,7 +484,14 @@ public class CreateIndirectUAMRoutes {
         try {
             network.addLink(link);
         } catch (IllegalArgumentException e) {
-            networkAlreadyContainsUam(e);
+            //networkAlreadyContainsUam(e);
+            if (cnt > 0) {
+                LOG.warn("There are duplicated links have not added into the UAM network!!!");
+                cnt--;
+                if (cnt == 0) {
+                    LOG.warn(Gbl.FUTURE_SUPPRESSED);
+                }
+            }
         }
     }
 
