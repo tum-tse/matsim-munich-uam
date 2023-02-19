@@ -172,17 +172,17 @@ public class CreateIndirectUAMRoutes {
             }*/
             LOG.info("the road class set: " + roadClass.toString());
 
-            for (Link link : scenario.getNetwork().getLinks().values()) {
+            for (Link link : network.getLinks().values()) {
                 if (roadClass.contains((String)link.getAttributes().getAttribute("type"))){
                     //add corresponding UAM nodes
                     //Id<Node> id = Id.createNodeId(name_uam_waypoints + encode(line[0]) + name_uam_station_flight_level);
                     Id<Node> from = Id.createNodeId(name_uam_waypoints + encode(link.getFromNode().getId().toString()) + name_uam_station_flight_level);
                     Id<Node> to = Id.createNodeId(name_uam_waypoints + encode(link.getToNode().getId().toString()) + name_uam_station_flight_level);
-                    if (!scenario.getNetwork().getNodes().containsKey(from)){
+                    if (!network.getNodes().containsKey(from)){
                         addNode(network, from, Double.parseDouble(String.valueOf(link.getFromNode().getCoord().getX())), Double.parseDouble(String.valueOf(link.getFromNode().getCoord().getY())),
                                 Double.parseDouble(String.valueOf(flight_route_height)));
                     }
-                    if (!scenario.getNetwork().getNodes().containsKey(to)) {
+                    if (!network.getNodes().containsKey(to)) {
                         addNode(network, to, Double.parseDouble(String.valueOf(link.getToNode().getCoord().getX())), Double.parseDouble(String.valueOf(link.getToNode().getCoord().getY())),
                                 Double.parseDouble(String.valueOf(flight_route_height)));
                     }
@@ -201,10 +201,67 @@ public class CreateIndirectUAMRoutes {
                     modesUam.add(UAMConstants.uam);
 
                     Link uamlink = addLink(network, from, to, modesUam, capacity, freespeed);
-                    network.getLinks().get(uamlink.getId()).getAttributes().putAttribute("oringinalgroundlinkid", link.getId());
-                    // the opposite lane
-                    Link uamReverseLink = addLink(network, to, from, modesUam, capacity, freespeed);
-                    network.getLinks().get(uamReverseLink.getId()).getAttributes().putAttribute("oringinalgroundlinkid", link.getId());
+                    if (uamlink!=null) {
+                        network.getLinks().get(uamlink.getId()).getAttributes().putAttribute("oringinalgroundlinkid", link.getId().toString());
+                    }
+                }
+            }
+            for (Link link : network.getLinks().values()) {
+                // add the reverse link for each UAM link which do not have the reverse link currently!
+                if (link.getAttributes().getAttribute(UAMFlightSegments.ATTRIBUTE) != null){
+                    if (link.getAttributes().getAttribute(UAMFlightSegments.ATTRIBUTE).equals(UAMFlightSegments.HORIZONTAL) | link.getAttributes().getAttribute(UAMFlightSegments.ATTRIBUTE).equals(UAMFlightSegments.VERTICAL)) {
+                        Id<Node> from = Id.createNodeId(name_uam_waypoints + encode(network.getLinks().get(Id.createLinkId((String)link.getAttributes().getAttribute("oringinalgroundlinkid"))).getFromNode().getId().toString()) + name_uam_station_flight_level);
+                        Id<Node> to = Id.createNodeId(name_uam_waypoints + encode(network.getLinks().get(Id.createLinkId((String)link.getAttributes().getAttribute("oringinalgroundlinkid"))).getToNode().getId().toString()) + name_uam_station_flight_level);
+
+                        Id<Link> id;
+                        boolean vertical = false;
+                        boolean horizontal = false;
+                        String f = to.toString();
+                        String t = from.toString();
+
+                        if ((f.endsWith(name_uam_station_ground_access) && t.endsWith(name_uam_station_flight_access))
+                                || (f.endsWith(name_uam_station_flight_access) && t.endsWith(name_uam_station_ground_access))) {
+                            // station link
+                            id = Id.createLinkId(name_uam_station_link + from + "-" + to);
+                            vertical = true;
+                        } else if ((f.endsWith(name_uam_station_flight_level) && t.endsWith(name_uam_station_flight_level))) {
+                            // flight level link (horizontal/cruise)
+                            id = Id.createLinkId(name_uam_horizontal_link + from + "-" + to);
+                            horizontal = true;
+                        } else if ((f.endsWith(name_uam_station_flight_access) && !t.endsWith(name_uam_station_flight_access))
+                                || (!f.endsWith(name_uam_station_flight_access) && t.endsWith(name_uam_station_flight_access))) {
+                            // flight access link (vertical)
+                            id = Id.createLinkId(name_uam_vertical_link + from + "-" + to);
+                            vertical = true;
+                        } else if ((f.endsWith(name_uam_station_ground_access) && !t.endsWith(name_uam_station_ground_access))
+                                || (!f.endsWith(name_uam_station_ground_access) && t.endsWith(name_uam_station_ground_access))) {
+                            // ground access link
+                            id = Id.createLinkId(name_uam_ground_link + from + "-" + to);
+                        } else {
+                            System.err.println("WARN: Unknown link type for link between nodes: " + from.toString()
+                                    + " and " + to.toString());
+                            id = Id.createLinkId(UAMConstants.uam + from + "-" + to);
+                        }
+
+                        if (!network.getLinks().containsKey(id)) {
+                            //add corresponding UAM links
+                            double capacity = Double.parseDouble(String.valueOf(customised_uam_link_capacity));
+                            double freespeed = Double.parseDouble(String.valueOf(customised_uam_link_speed));
+
+                            if (freespeed > uamMaxLinkSpeed)
+                                uamMaxLinkSpeed = freespeed;
+
+                            if (capacity > uamLinkCapacity)
+                                uamLinkCapacity = capacity;
+
+                            Set<String> modesUam = new HashSet<>();
+                            modesUam.add(UAMConstants.uam);
+
+                            Link uamlink = addLink(network, to, from, modesUam, capacity, freespeed);
+                            network.getLinks().get(uamlink.getId()).getAttributes().putAttribute("oringinalgroundlinkid", (String)link.getAttributes().getAttribute("oringinalgroundlinkid"));
+                        }
+
+                    }
                 }
             }
         /*} else {
@@ -494,6 +551,7 @@ public class CreateIndirectUAMRoutes {
                     LOG.warn(Gbl.FUTURE_SUPPRESSED);
                 }
             }
+            link = null;
         }
         return link;
     }
