@@ -201,10 +201,10 @@ public class CreateIndirectUAMRoutes {
                     modesUam.add(UAMConstants.uam);
 
                     Link uamlink = addLink(network, from, to, modesUam, capacity, freespeed);
-                    uamlink.getAttributes().putAttribute("oringinalgroundlinkid", link.getId());
+                    network.getLinks().get(uamlink.getId()).getAttributes().putAttribute("oringinalgroundlinkid", link.getId());
                     // the opposite lane
                     Link uamReverseLink = addLink(network, to, from, modesUam, capacity, freespeed);
-                    uamReverseLink.getAttributes().putAttribute("oringinalgroundlinkid", link.getId());
+                    network.getLinks().get(uamReverseLink.getId()).getAttributes().putAttribute("oringinalgroundlinkid", link.getId());
                 }
             }
         /*} else {
