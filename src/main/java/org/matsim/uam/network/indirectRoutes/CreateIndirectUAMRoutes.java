@@ -200,9 +200,11 @@ public class CreateIndirectUAMRoutes {
                     Set<String> modesUam = new HashSet<>();
                     modesUam.add(UAMConstants.uam);
 
-                    addLink(network, from, to, modesUam, capacity, freespeed);
+                    Link uamlink = addLink(network, from, to, modesUam, capacity, freespeed);
+                    uamlink.getAttributes().putAttribute("oringinalgroundlinkid", link.getId());
                     // the opposite lane
-                    addLink(network, to, from, modesUam, capacity, freespeed);
+                    Link uamReverseLink = addLink(network, to, from, modesUam, capacity, freespeed);
+                    uamReverseLink.getAttributes().putAttribute("oringinalgroundlinkid", link.getId());
                 }
             }
         /*} else {
@@ -418,17 +420,17 @@ public class CreateIndirectUAMRoutes {
         }
     }
 
-    private static void addLink(Network network, Id<Node> from, Id<Node> to, Set<String> modes) {
-        addLink(network, from, to, modes, uamLinkCapacity, uamMaxLinkSpeed);
+    private static Link addLink(Network network, Id<Node> from, Id<Node> to, Set<String> modes) {
+        return addLink(network, from, to, modes, uamLinkCapacity, uamMaxLinkSpeed);
     }
 
-    private static void addLink(Network network, Id<Node> from, Id<Node> to, Set<String> modes, double capacity,
+    private static Link addLink(Network network, Id<Node> from, Id<Node> to, Set<String> modes, double capacity,
                                 double freespeed) {
-        addLink(network, from, to, modes, capacity, freespeed, no_length);
+        return addLink(network, from, to, modes, capacity, freespeed, no_length);
     }
 
     private static int cnt = 10;
-    private static void addLink(Network network, Id<Node> from, Id<Node> to, Set<String> modes, double capacity,
+    private static Link addLink(Network network, Id<Node> from, Id<Node> to, Set<String> modes, double capacity,
                                 double freespeed, double length){
         Map<Id<Node>, ? extends Node> allNodes = network.getNodes();
         Node fromNode = allNodes.get(from);
@@ -493,6 +495,7 @@ public class CreateIndirectUAMRoutes {
                 }
             }
         }
+        return link;
     }
 
     private static Coord createCoord(double x, double y, double z) {
