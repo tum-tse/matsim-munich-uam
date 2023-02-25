@@ -408,6 +408,13 @@ public class CreateIndirectUAMRoutes {
         ConfigWriter configWriter = new ConfigWriter(config);
         configWriter.write(path + "/" + UAMConstants.uam + "_config.xml");*/
 
+        // add the oringinalgroundlinkid to all left links (all ground links and partial uam links which connects the stations and the designed uam network)
+        for (Link link : network.getLinks().values()) {
+            if (link.getAttributes().getAttribute("oringinalgroundlinkid") == null) {
+                link.getAttributes().putAttribute("oringinalgroundlinkid", "none");
+            }
+        }
+
         // WRITE UAM NETWORK
         //network.setName((network.getName().isEmpty() ? "" : network.getName() + "-") + UAMConstants.uam);
         network.getAttributes().putAttribute(UAMConstants.uam + "MaxLinkFreeSpeed", uamMaxLinkSpeed);
