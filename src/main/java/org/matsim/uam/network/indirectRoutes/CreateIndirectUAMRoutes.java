@@ -41,7 +41,7 @@ import org.matsim.core.utils.misc.StringUtils;
 /**
  * This script creates UAM-including MATSim network (with indirect UAM routes)
  *
- * @author haowuintub based on RRothfeld (Hao Wu)
+ * @author haowuintub (Hao Wu) based on RRothfeld
  */
 public class CreateIndirectUAMRoutes {
     private static final Logger LOG = Logger.getLogger(CreateIndirectUAMRoutes.class);
