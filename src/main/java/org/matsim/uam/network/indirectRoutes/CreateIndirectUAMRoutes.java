@@ -77,7 +77,7 @@ public class CreateIndirectUAMRoutes {
 
     public static void main(String[] args) {
         //System.out.println("ARGS: config.xml* uam-stations.csv* flight-nodes.csv* flight-links.csv* uam-vehicles.csv");
-        System.out.println("ARGS: network-input-file.xml.gz* uam-stations.csv* output-path* network-name.xml.gz*");
+        System.out.println("ARGS: network-input-file.xml.gz* uam-stations.csv* link-type-array* output-path* network-name.xml.gz*");
         System.out.println("(* required)");
 
         // ARGS
@@ -88,7 +88,7 @@ public class CreateIndirectUAMRoutes {
         //String nodesInput = args[j++];
         //String linksInput = args[j++];
         //String vehicleInput = null;
-        String[] linkTypes = toArray(args[j++]);
+        String[] linkTypes = toArray(args[j++]); // example: railway, motorway, motorway_link
         String outputPath = args[j++];
         String networkFileName = args[j++];
 
