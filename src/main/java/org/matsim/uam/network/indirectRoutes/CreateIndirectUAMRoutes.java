@@ -36,6 +36,7 @@ import net.bhl.matsim.uam.router.UAMFlightSegments;
 import net.bhl.matsim.uam.run.UAMConstants;
 
 import org.apache.log4j.Logger;
+import org.matsim.core.utils.misc.StringUtils;
 
 /**
  * This script creates UAM-including MATSim network (with indirect UAM routes)
@@ -49,7 +50,7 @@ public class CreateIndirectUAMRoutes {
     private static final double flight_route_height = 600;
     private static final double customised_uam_link_speed = 999;
     private static final double customised_uam_link_capacity = 999;
-    private static final boolean useZCoordinate = false; // default: false, i.e. use pseudo-3D (i.e. 2D) network
+    private static final boolean useZCoordinate = true; // default: false, i.e. use pseudo-3D (i.e. 2D) network
     private static final double detourFactor = 1.0; // default: 1.0, i.e. no detour from link distance
 
     // LATERALS
@@ -87,6 +88,7 @@ public class CreateIndirectUAMRoutes {
         //String nodesInput = args[j++];
         //String linksInput = args[j++];
         //String vehicleInput = null;
+        String[] linkTypes = toArray(args[j++]);
         String outputPath = args[j++];
         String networkFileName = args[j++];
 
@@ -94,7 +96,7 @@ public class CreateIndirectUAMRoutes {
             vehicleInput = args[j];*/
 
         // Run
-        convert(networkInputFile, /*configInput, */stationInput/*, nodesInput, linksInput, vehicleInput*/, outputPath, networkFileName);
+        convert(networkInputFile, /*configInput, */stationInput/*, nodesInput, linksInput, vehicleInput*/, linkTypes, outputPath, networkFileName);
     }
 
 /*    public static void convert (String configInput, String stationInput, double uamMaxLinkSpeed, double uamLinkCapacity) {
@@ -113,7 +115,7 @@ public class CreateIndirectUAMRoutes {
     }*/
 
     public static void convert(String networkInputFile, /*String configInput, */String stationInput/*, String nodesInput, String linksInput,
-                               String vehicleInput*/, String outputPath, String networkFileName) {
+                               String vehicleInput*/, String[] linkTypes, String outputPath, String networkFileName) {
         // READ REQUIRED INPUT FILES
         //Config config = ConfigUtils.loadConfig(configInput);
         Scenario scenario = ScenarioUtils.createScenario(ConfigUtils.createConfig());
@@ -163,9 +165,9 @@ public class CreateIndirectUAMRoutes {
                 addLink(network, from, to, modesUam, capacity, freespeed);
             }*/
 
-            Set<String> roadClass = new HashSet<>(Arrays.asList(/*"railway",*/ "motorway", "motorway_link", "trunk", "trunk_link", "primary", "primary_link"
-                    /*, "secondary", "tertiary", "unclassified", "residential", "living_street"*/));
-            // [null, unclassified, primary_link, tertiary, living_street, motorway_link, trunk, motorway, secondary, residential, railway, trunk_link, primary]
+            // For Munich Scenario, existing types: [null, unclassified, primary_link, tertiary, living_street, motorway_link, trunk, motorway, secondary, residential, railway, trunk_link, primary]
+            // Could to use "railway", "motorway", "motorway_link", "trunk", "trunk_link", "primary", "primary_link", "secondary", "tertiary", "unclassified", "residential", "living_street"
+            Set<String> roadClass = new HashSet<>(Arrays.asList(linkTypes));
             //roadClass.add("railway");
 /*            for (Link link : scenarioToLookUp.getNetwork().getLinks().values()) {
                 roadClass.add((String) link.getAttributes().getAttribute("type"));
@@ -686,4 +688,14 @@ public class CreateIndirectUAMRoutes {
         }
 
     }*/
+
+    private static String[] toArray( final String modes ) {
+        String[] parts = StringUtils.explode(modes, ',');
+
+        for (int i = 0, n = parts.length; i < n; i++) {
+            parts[i] = parts[i].trim().intern();
+        }
+
+        return parts;
+    }
 }
