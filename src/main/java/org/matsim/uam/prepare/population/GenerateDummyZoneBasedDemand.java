@@ -93,7 +93,7 @@ public class GenerateDummyZoneBasedDemand {
                 csvWriter.printRecord(outputRow);
 
                 //for the reference csv
-                outputRow.add(Double.toString((double) feature.getAttributes().get( 0 )));
+                outputRow.add(Double.toString((double) feature.getAttributes().get( 1 )));
                 if (tripsTitleRow2.size() != outputRow.size()) {
                     throw new RuntimeException("tripsTitleRow2.size() != outputRow.size()");
                 }
@@ -120,7 +120,7 @@ public class GenerateDummyZoneBasedDemand {
                 csvWriter.printRecord(outputRow);
 
                 //for the reference csv
-                outputRow.add(Double.toString((double) feature.getAttributes().get( 0 )));
+                outputRow.add(Double.toString((double) feature.getAttributes().get( 1 )));
                 if (tripsTitleRow2.size() != outputRow.size()) {
                     throw new RuntimeException("tripsTitleRow2.size() != outputRow.size()");
                 }
