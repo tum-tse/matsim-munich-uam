@@ -45,6 +45,10 @@ public class GenerateDummyZoneBasedDemand {
         List<String> tripsTitleRow = Arrays.asList
                 ("from_x", "from_y", "to_x", "to_y", "start_time");
         csvWriter.printRecord(tripsTitleRow);
+        CSVPrinter csvWriter2 = new CSVPrinter(new FileWriter(outputTripsPath.toString() + "reference.csv"), CSVFormat.DEFAULT.withDelimiter(delimiter).withFirstRecordAsHeader());
+        List<String> tripsTitleRow2 = Arrays.asList
+                ("from_x", "from_y", "to_x", "to_y", "start_time", "zone_id");
+        csvWriter2.printRecord(tripsTitleRow2);
         int numOfTripsCreated = 0;
 
 
@@ -88,6 +92,13 @@ public class GenerateDummyZoneBasedDemand {
 
                 csvWriter.printRecord(outputRow);
 
+                //for the reference csv
+                outputRow.add(Double.toString((double) feature.getAttributes().get( 0 )));
+                if (tripsTitleRow2.size() != outputRow.size()) {
+                    throw new RuntimeException("tripsTitleRow2.size() != outputRow.size()");
+                }
+                csvWriter2.printRecord(outputRow);
+
                 numOfTripsCreated++;
             }
 
@@ -108,11 +119,19 @@ public class GenerateDummyZoneBasedDemand {
 
                 csvWriter.printRecord(outputRow);
 
+                //for the reference csv
+                outputRow.add(Double.toString((double) feature.getAttributes().get( 0 )));
+                if (tripsTitleRow2.size() != outputRow.size()) {
+                    throw new RuntimeException("tripsTitleRow2.size() != outputRow.size()");
+                }
+                csvWriter2.printRecord(outputRow);
+
                 numOfTripsCreated++;
             }
         }
 
         csvWriter.close();
+        csvWriter2.close();
         System.out.println("numOfTripsServed: " + numOfTripsCreated);
     }
 
