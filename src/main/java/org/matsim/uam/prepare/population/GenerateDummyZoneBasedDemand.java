@@ -45,7 +45,7 @@ public class GenerateDummyZoneBasedDemand {
         List<String> tripsTitleRow = Arrays.asList
                 ("from_x", "from_y", "to_x", "to_y", "start_time");
         csvWriter.printRecord(tripsTitleRow);
-        CSVPrinter csvWriter2 = new CSVPrinter(new FileWriter(outputTripsPath.toString() + "reference.csv"), CSVFormat.DEFAULT.withDelimiter(delimiter).withFirstRecordAsHeader());
+        CSVPrinter csvWriter2 = new CSVPrinter(new FileWriter(outputTripsPath.toString() + "-reference.csv"), CSVFormat.DEFAULT.withDelimiter(delimiter).withFirstRecordAsHeader());
         List<String> tripsTitleRow2 = Arrays.asList
                 ("from_x", "from_y", "to_x", "to_y", "start_time", "zone_id");
         csvWriter2.printRecord(tripsTitleRow2);
