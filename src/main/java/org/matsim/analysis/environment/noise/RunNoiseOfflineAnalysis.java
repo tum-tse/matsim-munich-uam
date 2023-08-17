@@ -33,6 +33,7 @@ public class RunNoiseOfflineAnalysis {
 
         // settings for noise modeling
         Config config = ConfigUtils.createConfig(new NoiseConfigGroup());
+        config.global().setCoordinateSystem("EPSG:31468");
         config.controler().setRunId(runId);
         config.network().setInputFile(runDirectory + runId  + "." + "output_network.xml.gz");
         config.plans().setInputFile(runDirectory + runId  + "." + "output_plans.xml.gz");
